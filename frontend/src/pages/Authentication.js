@@ -11,18 +11,18 @@ export default AuthenticationPage
 export async function action({request}) {
   // action triggered anytime the AuthForm is submitted
   // param 'request' is built-in with the <Form /> component from react-router-dom (there's also 'params')
+  // this action code runs in the browser, so we can use all browser features, like localStorage for storing the token received from the backend
 
   // get the searchParam
   const searchParams = new URL(request.url).searchParams
   const mode = searchParams.get('mode') || 'login'
 
-  if (mode !== 'logn' && mode !== 'signup') {
+  if (mode !== 'login' && mode !== 'signup') {
     throw json({message: 'Unsupported mode.'}, {status: 422})
   }
 
   // get the data submitted in the AuthForm
   const data = await request.formData()
-  console.log(data)
   const authData = {
     email: data.get('email'),
     password: data.get('password')
@@ -46,6 +46,11 @@ export async function action({request}) {
     throw json({message: 'Could not authenticate user.'}, {status: 500})
   }
 
-  // soon: manage that token
+  const resData = await response.json()
+  const token = resData.token
+
+  localStorage.setItem('token', token)
+
+
   return redirect('/')
 }
